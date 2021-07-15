@@ -18,6 +18,8 @@
 package org.springframework.cloud.gateway.route;
 
 /**
+ * RouteDefinition仓储类，继承了Locator（get接口）以及write（删除和新增接口）
+ * 默认实现是Inmemory（基于内存）
  * @author Spencer Gibb
  */
 public interface RouteDefinitionRepository extends RouteDefinitionLocator, RouteDefinitionWriter {

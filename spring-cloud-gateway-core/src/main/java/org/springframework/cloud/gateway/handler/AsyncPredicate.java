@@ -25,10 +25,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
+ * 异步断言，有与非或三种默认的异步方法
  * @author Ben Hale
  */
 public interface AsyncPredicate<T> extends Function<T, Publisher<Boolean>> {
-
+	/**
+	 * and 操作
+	 * @param other
+	 * @return
+	 */
 	default AsyncPredicate<T> and(AsyncPredicate<? super T> other) {
 		Objects.requireNonNull(other, "other must not be null");
 

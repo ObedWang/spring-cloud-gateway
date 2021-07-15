@@ -28,6 +28,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import reactor.core.publisher.Flux;
 
 /**
+ * 建造者模式，用来建造生成Route的工厂
  * Used to build a {@link RouteLocator}
  */
 public class RouteLocatorBuilder {
@@ -86,7 +87,7 @@ public class RouteLocatorBuilder {
 		 * @return a {@link RouteLocator}
 		 */
 		public RouteLocator build() {
-			return () -> Flux.fromIterable(this.routes).map(routeBuilder -> routeBuilder.build());
+			return () -> Flux.fromIterable(this.routes).map(Route.AbstractBuilder::build);
 		}
 
 		ConfigurableApplicationContext getContext() {

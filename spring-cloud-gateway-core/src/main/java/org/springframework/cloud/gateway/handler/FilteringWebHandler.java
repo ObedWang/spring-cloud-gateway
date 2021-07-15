@@ -89,6 +89,10 @@ public class FilteringWebHandler implements WebHandler {
 		return new DefaultGatewayFilterChain(combined).filter(exchange);
 	}
 
+	/**
+	 * 用一个GatewayFilterChain封装了调用过滤器的逻辑，这里面会持有一个filter集合以及当前filterChain执行到第几个filter
+	 * 这种设计方法值得学习
+	 */
 	private static class DefaultGatewayFilterChain implements GatewayFilterChain {
 
 		private final int index;
@@ -110,6 +114,7 @@ public class FilteringWebHandler implements WebHandler {
 
 		@Override
 		public Mono<Void> filter(ServerWebExchange exchange) {
+			//Mono.defer()传递一个Supplier（相当于一个工厂）用以响应是获取supplier.get()的值
 			return Mono.defer(() -> {
 				if (this.index < filters.size()) {
 					GatewayFilter filter = filters.get(this.index);

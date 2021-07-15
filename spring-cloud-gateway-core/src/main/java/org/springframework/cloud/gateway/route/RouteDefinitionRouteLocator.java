@@ -52,16 +52,30 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 
 /**
+ * 真正解析用的RouteLocator，基于RouteDefinitionLocator的RouteLocator实现类（即真正根据各种源来解析配置的类）<br>
+ * RouteDefinitionRouteLocator 从{@link RouteDefinitionLocator}  获取 {@link RouteDefinition} ，转换成 {@link Route}
  * {@link RouteLocator} that loads routes from a {@link RouteDefinitionLocator}
+ *
  * @author Spencer Gibb
  */
 public class RouteDefinitionRouteLocator implements RouteLocator, BeanFactoryAware, ApplicationEventPublisherAware {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final RouteDefinitionLocator routeDefinitionLocator;
+	/**
+	 * RoutePredicateFactory的映射
+	 * key -> {@link RoutePredicateFactory#name}
+	 */
 	private final Map<String, RoutePredicateFactory> predicates = new LinkedHashMap<>();
+	/**
+	 * GatewayFilterFactory的映射
+	 * key -> {@link GatewayFilterFactory#name}
+	 */
 	private final Map<String, GatewayFilterFactory> gatewayFilterFactories = new HashMap<>();
 	private final GatewayProperties gatewayProperties;
+	/**
+	 * Spring EL 表达式解析器
+	 */
 	private final SpelExpressionParser parser = new SpelExpressionParser();
 	private BeanFactory beanFactory;
 	private ApplicationEventPublisher publisher;
@@ -93,7 +107,7 @@ public class RouteDefinitionRouteLocator implements RouteLocator, BeanFactoryAwa
 		predicates.forEach(factory -> {
 			String key = factory.name();
 			if (this.predicates.containsKey(key)) {
-				this.logger.warn("A RoutePredicateFactory named "+ key
+				this.logger.warn("A RoutePredicateFactory named " + key
 						+ " already exists, class: " + this.predicates.get(key)
 						+ ". It will be overwritten.");
 			}
@@ -123,6 +137,12 @@ public class RouteDefinitionRouteLocator implements RouteLocator, BeanFactoryAwa
 			}*/
 	}
 
+	/**
+	 * 将routeDefinition 转换成 Route 的实现
+	 *
+	 * @param routeDefinition routeDefinition
+	 * @return Route
+	 */
 	private Route convertToRoute(RouteDefinition routeDefinition) {
 		AsyncPredicate<ServerWebExchange> predicate = combinePredicates(routeDefinition);
 		List<GatewayFilter> gatewayFilters = getFilters(routeDefinition);
@@ -160,8 +180,7 @@ public class RouteDefinitionRouteLocator implements RouteLocator, BeanFactoryAwa
 			}
 			if (gatewayFilter instanceof Ordered) {
 				ordered.add(gatewayFilter);
-			}
-			else {
+			} else {
 				ordered.add(new OrderedGatewayFilter(gatewayFilter, i + 1));
 			}
 		}
@@ -202,7 +221,7 @@ public class RouteDefinitionRouteLocator implements RouteLocator, BeanFactoryAwa
 	private AsyncPredicate<ServerWebExchange> lookup(RouteDefinition route, PredicateDefinition predicate) {
 		RoutePredicateFactory<Object> factory = this.predicates.get(predicate.getName());
 		if (factory == null) {
-            throw new IllegalArgumentException("Unable to find RoutePredicateFactory with name " + predicate.getName());
+			throw new IllegalArgumentException("Unable to find RoutePredicateFactory with name " + predicate.getName());
 		}
 		Map<String, String> args = predicate.getArgs();
 		if (logger.isDebugEnabled()) {
@@ -210,13 +229,13 @@ public class RouteDefinitionRouteLocator implements RouteLocator, BeanFactoryAwa
 					+ args + " to " + predicate.getName());
 		}
 
-        Map<String, Object> properties = factory.shortcutType().normalize(args, factory, this.parser, this.beanFactory);
-        Object config = factory.newConfig();
-        ConfigurationUtils.bind(config, properties,
-                factory.shortcutFieldPrefix(), predicate.getName(), validator);
-        if (this.publisher != null) {
-            this.publisher.publishEvent(new PredicateArgsEvent(this, route.getId(), properties));
-        }
-        return factory.applyAsync(config);
+		Map<String, Object> properties = factory.shortcutType().normalize(args, factory, this.parser, this.beanFactory);
+		Object config = factory.newConfig();
+		ConfigurationUtils.bind(config, properties,
+				factory.shortcutFieldPrefix(), predicate.getName(), validator);
+		if (this.publisher != null) {
+			this.publisher.publishEvent(new PredicateArgsEvent(this, route.getId(), properties));
+		}
+		return factory.applyAsync(config);
 	}
 }

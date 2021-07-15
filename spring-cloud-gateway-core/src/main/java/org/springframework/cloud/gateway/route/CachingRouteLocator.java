@@ -29,6 +29,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 /**
+ * 缓存RouteLocator，该类增强的功能是可以refresh（监听config修改事件）<br>
+ * 当refresh时，就清空缓存Route的hashMap，这个时候，再来获取Route，因为获取不到，就调用onCacheMissResume方法重新加载Route
  * @author Spencer Gibb
  */
 public class CachingRouteLocator implements RouteLocator {
@@ -39,6 +41,8 @@ public class CachingRouteLocator implements RouteLocator {
 
 	public CachingRouteLocator(RouteLocator delegate) {
 		this.delegate = delegate;
+		//返回一个FluxCacheBuilderMapMiss，相当于一个reactive提供的缓存，如果没找到对应的数据，回去调用onCacheMissResume方法
+		//讲道理应该是线程不安全的，但是因为是在构造方法里创建，所以应该只有一个线程调用所以是安全的
 		routes = CacheFlux.lookup(cache, "routes", Route.class)
 				.onCacheMissResume(() -> this.delegate.getRoutes().sort(AnnotationAwareOrderComparator.INSTANCE));
 	}
@@ -57,6 +61,9 @@ public class CachingRouteLocator implements RouteLocator {
 		return this.routes;
 	}
 
+	/**
+	 * 事件监听，用于监听RefreshRouteEvent
+	 */
 	@EventListener(RefreshRoutesEvent.class)
 	/* for testing */ void handleRefresh() {
 		refresh();

@@ -20,9 +20,11 @@ package org.springframework.cloud.gateway.route;
 import reactor.core.publisher.Flux;
 
 /**
+ * Route的工厂方式 <br>
+ * functional interface <br>
+ * 下面的三个实现类应该是实现了装饰者模式 <br>
  * @author Spencer Gibb
  */
-//TODO: rename to Routes?
 public interface RouteLocator {
 
 	Flux<Route> getRoutes();

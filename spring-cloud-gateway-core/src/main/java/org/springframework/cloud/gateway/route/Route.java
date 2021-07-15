@@ -37,18 +37,30 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.toAsyncPredicate;
 
 /**
+ * route的构建有两种方式，一种是通过配置文件中设置（yml），另外一种是通过代码配置
+ * 获取Route的接口为{@link RouteLocator}
  * @author Spencer Gibb
  */
 public class Route implements Ordered {
-
+	/**
+	 * 标识符，区别于其他Route
+	 */
 	private final String id;
-
+	/**
+	 * 路由指向的目的地 uri，即客户端请求最终被转发的目的地
+	 */
 	private final URI uri;
-
+	/**
+	 * 用于多个 Route 之间的排序，数值越小排序越靠前，匹配优先级越高
+	 */
 	private final int order;
-
+	/**
+	 * 断言，表示匹配该 Route 的前置条件，即满足相应的条件才会被路由到目的地 uri
+	 */
 	private final AsyncPredicate<ServerWebExchange> predicate;
-
+	/**
+	 * 过滤器用于处理切面逻辑，如路由转发前修改请求头等
+	 */
 	private final List<GatewayFilter> gatewayFilters;
 
 	public static Builder builder() {
@@ -81,6 +93,10 @@ public class Route implements Ordered {
 		this.gatewayFilters = gatewayFilters;
 	}
 
+	/**
+	 * 建造者模式模板
+	 * @param <B>
+	 */
 	public abstract static class AbstractBuilder<B extends AbstractBuilder<B>> {
 		protected String id;
 
@@ -160,6 +176,9 @@ public class Route implements Ordered {
 		}
 	}
 
+	/**
+	 * 异步的建造者模式
+	 */
 	public static class AsyncBuilder extends AbstractBuilder<AsyncBuilder> {
 
 		protected AsyncPredicate<ServerWebExchange> predicate;
@@ -202,6 +221,9 @@ public class Route implements Ordered {
 		}
 	}
 
+	/**
+	 * 建造者模式
+	 */
 	public static class Builder extends AbstractBuilder<Builder> {
 		protected Predicate<ServerWebExchange> predicate;
 
@@ -243,6 +265,7 @@ public class Route implements Ordered {
 		return this.uri;
 	}
 
+	@Override
 	public int getOrder() {
 		return order;
 	}

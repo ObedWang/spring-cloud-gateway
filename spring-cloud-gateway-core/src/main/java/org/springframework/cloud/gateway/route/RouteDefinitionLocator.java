@@ -20,6 +20,7 @@ package org.springframework.cloud.gateway.route;
 import reactor.core.publisher.Flux;
 
 /**
+ * RouteDefinition定位器，用于获取RouteDefinition，可以理解为RouteDefinition工厂
  * @author Spencer Gibb
  */
 public interface RouteDefinitionLocator {

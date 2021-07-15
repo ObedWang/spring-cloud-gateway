@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Contract to allow a {@link WebFilter} to delegate to the next in the chain.
- *
+ * 调用下一个filter，默认实现只有一个 {@link org.springframework.cloud.gateway.handler.FilteringWebHandler.DefaultGatewayFilterChain}
  * @author Rossen Stoyanchev
  * @since 5.0
  */

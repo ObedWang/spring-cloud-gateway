@@ -87,6 +87,7 @@ public class BooleanSpec extends UriSpec {
 			this.operator = operator;
 		}
 
+		@Override
 		public BooleanSpec predicate(Predicate<ServerWebExchange> predicate) {
 		    return asyncPredicate(toAsyncPredicate(predicate));
 		}

@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
  * as security, timeouts, and others. Specific to a Gateway
  *
  * Copied from WebFilter
- *
+ * 责任链模式
  * @author Rossen Stoyanchev
  * @since 5.0
  */

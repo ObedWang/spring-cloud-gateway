@@ -20,6 +20,7 @@ package org.springframework.cloud.gateway.route;
 import reactor.core.publisher.Flux;
 
 /**
+ * 将一个RouteLocator的流（集合）整合成一个RouteLocator
  * @author Spencer Gibb
  */
 public class CompositeRouteLocator implements RouteLocator {

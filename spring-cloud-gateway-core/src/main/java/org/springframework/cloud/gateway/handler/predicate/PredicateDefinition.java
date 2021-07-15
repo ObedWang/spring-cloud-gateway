@@ -54,6 +54,7 @@ public class PredicateDefinition {
 		for (int i=0; i < args.length; i++) {
 			this.args.put(NameUtils.generateName(i), args[i]);
 		}
+		System.out.println(toString());
 	}
 
 	public String getName() {
